@@ -1,21 +1,16 @@
-# coding: utf-8
+from __future__ import annotations
+
 import os
-import sys
-from mock import patch
+from io import StringIO
+from unittest.mock import patch
+
 import pytest
-from decouple import Config, RepositoryEnv, UndefinedValueError
 
+from decouple import Config
+from decouple import RepositoryEnv
+from decouple import UndefinedValueError
 
-# Useful for very coarse version differentiation.
-PY3 = sys.version_info[0] == 3
-
-if PY3:
-    from io import StringIO
-else:
-    from io import BytesIO as StringIO
-
-
-ENVFILE = '''
+ENV_FILE = """
 KeyTrue=True
 KeyOne=1
 KeyYes=yes
@@ -49,17 +44,20 @@ KeyHasTwoSingleQuote="'Y'"
 KeyHasTwoDoubleQuote='"Y"'
 KeyHasMixedQuotesAsData1="Y'
 KeyHasMixedQuotesAsData2='Y"
-'''
+"""
+
 
 @pytest.fixture(scope='module')
-def config():
-    with patch('decouple.open', return_value=StringIO(ENVFILE), create=True):
+def config() -> Config:
+    with patch(
+        'decouple.decouple.Path.open', return_value=StringIO(ENV_FILE), create=True
+    ):
         return Config(RepositoryEnv('.env'))
 
 
-def test_env_comment(config):
+def test_env_comment(config: Config):
     with pytest.raises(UndefinedValueError):
-        config('CommentedKey')
+        config('CommentedKey')  # type: ignore
 
 
 def test_env_percent_not_escaped(config):
@@ -76,7 +74,8 @@ def test_env_bool_true(config):
     assert True is config('KeyYes', cast=bool)
     assert True is config('KeyOn', cast=bool)
     assert True is config('KeyY', cast=bool)
-    assert True is config('Key1int', default=1, cast=bool)
+    assert True is config('Key1int', default=True, cast=bool)
+
 
 def test_env_bool_false(config):
     assert False is config('KeyFalse', cast=bool)
@@ -85,7 +84,7 @@ def test_env_bool_false(config):
     assert False is config('KeyOff', cast=bool)
     assert False is config('KeyN', cast=bool)
     assert False is config('KeyEmpty', cast=bool)
-    assert False is config('Key0int', default=0, cast=bool)
+    assert False is config('Key0int', default=False, cast=bool)
 
 
 def test_env_os_environ(config):
@@ -123,6 +122,7 @@ def test_env_support_space(config):
 def test_env_empty_string_means_false(config):
     assert False is config('KeyEmpty', cast=bool)
 
+
 def test_env_with_quote(config):
     assert "text'" == config('KeyWithSingleQuoteEnd')
     assert 'text"' == config('KeyWithDoubleQuoteEnd')
@@ -134,8 +134,9 @@ def test_env_with_quote(config):
     assert "'" == config('KeyIsSingleQuote')
     assert "'Y'" == config('KeyHasTwoSingleQuote')
     assert '"Y"' == config('KeyHasTwoDoubleQuote')
-    assert '''"Y\'''' == config('KeyHasMixedQuotesAsData1')
+    assert """"Y\'""" == config('KeyHasMixedQuotesAsData1')
     assert '''\'Y"''' == config('KeyHasMixedQuotesAsData2')
+
 
 def test_env_repo_keyerror(config):
     with pytest.raises(KeyError):

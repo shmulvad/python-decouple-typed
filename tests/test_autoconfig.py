@@ -1,20 +1,30 @@
-# coding: utf-8
+from __future__ import annotations
+
 import os
+from pathlib import Path
+from unittest.mock import mock_open
+from unittest.mock import patch
+
 import pytest
-from mock import patch, mock_open
-from decouple import AutoConfig, UndefinedValueError, RepositoryEmpty, DEFAULT_ENCODING
+
+from decouple import AutoConfig
+from decouple import RepositoryEmpty
+from decouple import UndefinedValueError
+from decouple.decouple import DEFAULT_ENCODING
+
+TEST_DIR = Path(__file__).parent
 
 
 def test_autoconfig_env():
     config = AutoConfig()
-    path = os.path.join(os.path.dirname(__file__), 'autoconfig', 'env', 'project')
+    path = TEST_DIR / 'autoconfig' / 'env' / 'project'
     with patch.object(config, '_caller_path', return_value=path):
         assert 'ENV' == config('KEY')
 
 
 def test_autoconfig_ini():
     config = AutoConfig()
-    path = os.path.join(os.path.dirname(__file__), 'autoconfig', 'ini', 'project')
+    path = TEST_DIR / 'autoconfig' / 'ini' / 'project'
     with patch.object(config, '_caller_path', return_value=path):
         assert 'INI' == config('KEY')
 
@@ -30,10 +40,9 @@ def test_autoconfig_ini_in_subdir():
     for settings.ini in parent directories.
     """
     config = AutoConfig()
-    subdir = os.path.join(os.path.dirname(__file__), 'autoconfig', 'ini',
-            'project', 'subdir')
+    subdir = TEST_DIR / 'autoconfig' / 'ini' / 'project' / 'subdir'
     os.chdir(subdir)
-    path = os.path.join(os.path.curdir, 'empty.py')
+    path = subdir / 'empty.py'
     with patch.object(config, '_caller_path', return_value=path):
         assert 'INI' == config('KEY')
 
@@ -41,8 +50,8 @@ def test_autoconfig_ini_in_subdir():
 def test_autoconfig_none():
     os.environ['KeyFallback'] = 'On'
     config = AutoConfig()
-    path = os.path.join(os.path.dirname(__file__), 'autoconfig', 'none')
-    with patch('os.path.isfile', return_value=False):
+    # path = os.path.join(os.path.dirname(__file__), 'autoconfig', 'none')
+    with patch('decouple.decouple.Path.is_file', return_value=False):
         assert True is config('KeyFallback', cast=bool)
     del os.environ['KeyFallback']
 
@@ -50,7 +59,9 @@ def test_autoconfig_none():
 def test_autoconfig_exception():
     os.environ['KeyFallback'] = 'On'
     config = AutoConfig()
-    with patch('os.path.isfile', side_effect=Exception('PermissionDenied')):
+    with patch(
+        'decouple.decouple.Path.is_file', side_effect=Exception('PermissionDenied')
+    ):
         assert True is config('KeyFallback', cast=bool)
     del os.environ['KeyFallback']
 
@@ -58,19 +69,19 @@ def test_autoconfig_exception():
 def test_autoconfig_is_not_a_file():
     os.environ['KeyFallback'] = 'On'
     config = AutoConfig()
-    with patch('os.path.isfile', return_value=False):
+    with patch('decouple.decouple.Path.is_file', return_value=False):
         assert True is config('KeyFallback', cast=bool)
     del os.environ['KeyFallback']
 
 
 def test_autoconfig_search_path():
-    path = os.path.join(os.path.dirname(__file__), 'autoconfig', 'env', 'custom-path')
+    path = TEST_DIR / 'autoconfig' / 'env' / 'custom-path'
     config = AutoConfig(path)
     assert 'CUSTOMPATH' == config('KEY')
 
 
 def test_autoconfig_empty_repository():
-    path = os.path.join(os.path.dirname(__file__), 'autoconfig', 'env', 'custom-path')
+    path = TEST_DIR / 'autoconfig' / 'env' / 'custom-path'
     config = AutoConfig(path)
 
     with pytest.raises(UndefinedValueError):
@@ -78,29 +89,32 @@ def test_autoconfig_empty_repository():
 
     assert isinstance(config.config.repository, RepositoryEmpty)
 
+
 def test_autoconfig_ini_default_encoding():
     config = AutoConfig()
-    path = os.path.join(os.path.dirname(__file__), 'autoconfig', 'ini', 'project')
-    filename = os.path.join(os.path.dirname(__file__), 'autoconfig', 'ini', 'project', 'settings.ini')
+    path = TEST_DIR / 'autoconfig' / 'ini' / 'project'
+    # filename = TEST_DIR / 'autoconfig' / 'ini' / 'project' / 'settings.ini'
+
     with patch.object(config, '_caller_path', return_value=path):
-        with patch('decouple.open', mock_open(read_data='')) as mopen:
+        with patch('decouple.decouple.Path.open', mock_open(read_data='')) as mopen:
             assert config.encoding == DEFAULT_ENCODING
             assert 'ENV' == config('KEY', default='ENV')
-            mopen.assert_called_once_with(filename, encoding=DEFAULT_ENCODING)
+            mopen.assert_called_once_with(encoding=DEFAULT_ENCODING)
+
 
 def test_autoconfig_env_default_encoding():
     config = AutoConfig()
-    path = os.path.join(os.path.dirname(__file__), 'autoconfig', 'env', 'project')
-    filename = os.path.join(os.path.dirname(__file__), 'autoconfig', 'env', '.env')
+    path = TEST_DIR / 'autoconfig' / 'env' / 'project'
+    # filename = TEST_DIR / 'autoconfig' / 'env' / '.env'
     with patch.object(config, '_caller_path', return_value=path):
-        with patch('decouple.open', mock_open(read_data='')) as mopen:
+        with patch('decouple.decouple.Path.open', mock_open(read_data='')) as mopen:
             assert config.encoding == DEFAULT_ENCODING
             assert 'ENV' == config('KEY', default='ENV')
-            mopen.assert_called_once_with(filename, encoding=DEFAULT_ENCODING)
+            mopen.assert_called_once_with(encoding=DEFAULT_ENCODING)
 
 
 def test_autoconfig_no_repository():
-    path = os.path.join(os.path.dirname(__file__), 'autoconfig', 'ini', 'no_repository')
+    path = TEST_DIR / 'autoconfig' / 'ini' / 'no_repository'
     config = AutoConfig(path)
 
     with pytest.raises(UndefinedValueError):

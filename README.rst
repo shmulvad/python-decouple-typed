@@ -1,5 +1,34 @@
-Python Decouple: Strict separation of settings from code
-========================================================
+Python Decouple Typed: Typed strict separation of settings from code
+=====================================================================
+
+This project is a fork of the wonderful `python-decouple <https://pypi.org/project/python-decouple/>`_ project by Henrique Bastos. I love python-decouple, but a great frustation of mine has been that it is untyped and results in a lot of type errors in my code. Bastos has `made it clear <https://github.com/HBNetwork/python-decouple/issues/122>`_ that he does not want to add type hints to the project, so I have decided to fork it and add type hints myself.
+
+All the functionality of the original project is still there, but the type hints have been added based on the ``cast`` and ``default`` argument.
+
+
+#. With the new ``python-decouple-typed`` project, you get type inference:
+
+   .. code-block:: python
+
+     from decouple import config
+     SECRET_KEY = config('SECRET_KEY')  # type: str
+     EMAIL_HOST = config('EMAIL_HOST', default='localhost')  # type: str
+     DEBUG = config('DEBUG', default=False, cast=bool)  # type: bool
+     DEBUG = config('MY_VAL', default=False, cast=int)  # type: int | bool
+     EMAIL_PORT = config('EMAIL_PORT', cast=int)  # type: int
+     EMAIL_PORT = config('EMAIL_PORT', default=25, cast=int)  # type: int
+     EMAIL_PORT = config('EMAIL_PORT', default=25)  # type: str | int
+
+#. With the original ``python-decouple`` project, this is what you would get:
+
+   .. code-block:: python
+
+     from decouple import config
+     SECRET_KEY = config('SECRET_KEY')  # type: unknown | bool
+     EMAIL_HOST = config('EMAIL_HOST', default='localhost')  # type: unknown | bool
+     DEBUG = config('DEBUG', default=False, cast=bool)  # type: unknown | bool
+     ...
+
 
 *Decouple* helps you to organize your settings so that you can
 change parameters without having to redeploy your app.
@@ -14,14 +43,9 @@ It also makes it easy for you to:
 It was originally designed for Django, but became an independent generic tool
 for separating settings from code.
 
-.. image:: https://img.shields.io/travis/henriquebastos/python-decouple.svg
-    :target: https://travis-ci.org/henriquebastos/python-decouple
-    :alt: Build Status
-
-.. image:: https://img.shields.io/pypi/v/python-decouple.svg
-    :target: https://pypi.python.org/pypi/python-decouple/
+.. image:: https://img.shields.io/pypi/v/python-decouple-typed.svg
+    :target: https://pypi.python.org/pypi/python-decouple-typed/
     :alt: Latest PyPI version
-
 
 
 .. contents:: Summary
@@ -68,7 +92,7 @@ Install:
 
 .. code-block:: console
 
-    pip install python-decouple
+    pip install python-decouple-typed
 
 
 Then use it on your ``settings.py``.
@@ -395,8 +419,8 @@ from decouple import Config, RepositoryEnv
 config = Config(RepositoryEnv("path/to/.env"))
 ```
 
-2) How to use python-decouple with Jupyter?
--------------------------------------------
+2) How to use python-decouple-typed with Jupyter?
+---------------------------------------------------
 
 ```python
 import os
@@ -413,26 +437,6 @@ from decouple import Config, RepositoryEnv
 config = Config(RepositoryEnv("path/to/somefile-like-env"))
 ```
 
-4) How to define the path to my env file on a env var?
---------------------------------------------------------
-
-```python
-import os
-from decouple import Config, RepositoryEnv
-
-DOTENV_FILE = os.environ.get("DOTENV_FILE", ".env") # only place using os.environ
-config = Config(RepositoryEnv(DOTENV_FILE))
-```
-
-5) How can I have multiple *env* files working together?
---------------------------------------------------------
-
-```python
-from collections import ChainMap
-from decouple import Config, RepositoryEnv
-
-config = Config(ChainMap(RepositoryEnv(".private.env"), RepositoryEnv(".env")))
-```
 
 Contribute
 ==========
@@ -443,22 +447,16 @@ Setup your development environment:
 
 .. code-block:: console
 
-    git clone git@github.com:henriquebastos/python-decouple.git
-    cd python-decouple
+    git clone git@github.com:shmulvad/python-decouple-typed.git
+    cd python-decouple-typed
     python -m venv .venv
     source .venv/bin/activate
     pip install -r requirements.txt
     tox
 
-*Decouple* supports both Python 2.7 and 3.6. Make sure you have both installed.
+*Decouple* supports both Python 3.8+.
 
-I use `pyenv <https://github.com/pyenv/pyenv#simple-python-version-management-pyenv>`_ to
-manage multiple Python versions and I described my workspace setup on this article:
-`The definitive guide to setup my Python workspace
-<https://medium.com/@henriquebastos/the-definitive-guide-to-setup-my-python-workspace-628d68552e14>`_
-
-You can submit pull requests and issues for discussion. However I only
-consider merging tested code.
+You can submit pull requests and issues for discussion. However I only consider merging tested code.
 
 
 License
@@ -466,7 +464,7 @@ License
 
 The MIT License (MIT)
 
-Copyright (c) 2017 Henrique Bastos <henrique at bastos dot net>
+Copyright (c) 2017 Henrique Bastos <henrique at bastos dot net> and 2023 Soeren Mulvad <shmulvad at gmail dot com>
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal

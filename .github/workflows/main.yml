@@ -1,60 +1,29 @@
-##
-# A GitHub Action to run Tox
+name: Validate
 
-name: Tox
+on: [push, pull_request]
 
-# Controls when the action will run. 
-on:
-  # Triggers the workflow on push or pull request events but only for the master branch
-  pull_request:
-    branches:
-    - master
-  push:
-    branches:
-    - master
-    - tox-action
-
-  # Allows you to run this workflow manually from the Actions tab
-  workflow_dispatch:
-
-# A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
-  # This workflow contains a single job called "build"
-  py310:
+  test:
+    name: Test on ${{ matrix.python-version }}
     runs-on: ubuntu-latest
-    container: python:3.10-alpine
-
-    # Steps represent a sequence of tasks that will be executed as part of the job
+    strategy:
+      matrix:
+        python-version: ["3.8", "3.9", "3.10", "3.11", "3.12"]
     steps:
-    # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
-    - uses: actions/checkout@v2
-
-    # Runs a single command using the runners shell
-    - name: Install Tox
-      run: pip install --user --upgrade tox
-
-    - name: Run Tox
-      env:
-        TOXENV: py310
+    - uses: actions/checkout@v4
+    - name: Set up Python ${{ matrix.python-version }}
+      uses: actions/setup-python@v4
+      with:
+        python-version: ${{ matrix.python-version }}
+    - name: Install dependencies
       run: |
-        "$HOME/.local/bin/tox"
-
-  py27:
-    runs-on: ubuntu-latest
-    container: python:2.7-alpine
-
-    # Steps represent a sequence of tasks that will be executed as part of the job
-    steps:
-    # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
-    - uses: actions/checkout@v2
-
-    # Runs a single command using the runners shell
-    - name: Install Tox
-      run: pip install --user --upgrade tox
-
-    - name: Run Tox
-      env:
-        TOXENV: py27
-      run: |
-        "$HOME/.local/bin/tox"
-
+        python -m pip install --upgrade pip
+        python -m pip install ruff==0.1.8 mypy==1.7.1 pytest==7.4.3
+    - name: ruff-lint
+      run: ruff check --output-format=github .
+    - name: ruff-format
+      run: ruff format --check .
+    - name: Typecheck with mypy
+      run: mypy --install-types --non-interactive decouple/
+    - name: Test with pytest
+      run: pytest .

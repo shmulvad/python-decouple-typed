@@ -1,0 +1,50 @@
+[tool.ruff]
+preview = true
+exclude = [
+    ".git",
+    "*.pyc",
+    "__pycache__",
+    ".conda",
+]
+ignore = ["S101", "ANN101", "B904", "COM812", "E203"]
+line-length = 88
+# See https://beta.ruff.rs/docs/rules/ for more information
+select = [
+    "C9",
+    "E",
+    "F",
+    "W",
+    "B",
+    "I",
+    "N",
+    "UP",
+    # "ANN",
+    "A",
+    "S",
+    "COM",
+    "C4",
+    "ICN",
+    "PIE",
+    "Q",
+    # "TCH",
+    "PTH",
+    "NPY",
+    "RUF",
+]
+ignore-init-module-imports = true
+target-version = "py38"
+
+[tool.ruff.format]
+quote-style = "single"
+
+[tool.ruff.mccabe]
+max-complexity = 10
+
+[tool.ruff.flake8-quotes]
+docstring-quotes = "double"
+inline-quotes = "single"
+multiline-quotes = "double"
+
+[tool.ruff.isort]
+force-single-line = true
+required-imports = ["from __future__ import annotations"]

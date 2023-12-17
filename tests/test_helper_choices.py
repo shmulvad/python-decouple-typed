@@ -1,27 +1,28 @@
-# coding: utf-8
-import pytest
-from decouple import Choices
+from __future__ import annotations
 
+import pytest
+
+from decouple import Choices
 
 FRUIT_APPLE = 'apple'
 FRUIT_BANANA = 'banana'
 FRUIT_COCONUT = 'coconut'
 
 ALLOWED_FRUITS = (
-        (FRUIT_APPLE, 'Apple'),
-        (FRUIT_BANANA, 'Banana'),
-        (FRUIT_COCONUT, 'Coconut'),
-    )
+    (FRUIT_APPLE, 'Apple'),
+    (FRUIT_BANANA, 'Banana'),
+    (FRUIT_COCONUT, 'Coconut'),
+)
 
 ZERO = 0
 THREE = 3
 SEVEN = 7
 
 ALLOWED_NUMBERS = (
-        (ZERO, 'Zero'),
-        (THREE, 'Three'),
-        (SEVEN, 'Seven'),
-    )
+    (ZERO, 'Zero'),
+    (THREE, 'Three'),
+    (SEVEN, 'Seven'),
+)
 
 
 def test_default_cast_with_flat_list():

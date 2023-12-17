@@ -1,7 +1,10 @@
 *.py[cod]
+*.ipynb
 
 # C extensions
 *.so
+
+.conda/
 
 # Packages
 *.egg
@@ -36,3 +39,7 @@ nosetests.xml
 .pydevproject
 .idea
 .cache
+
+.mypy_cache/
+.pytest_cache/
+.ruff_cache/

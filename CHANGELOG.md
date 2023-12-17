@@ -1,6 +1,12 @@
 Changelog
 =========
 
+3.8 (2023-12-17)
+----------------
+
+- Project was forked by Soeren Mulvad to `decouple-python-typed`. Python 2 support was dropped and type hinting was added.
+
+
 3.7 (2023-01-09)
 ----------------
 
