@@ -22,7 +22,7 @@ def load_version() -> str:
 
 NAME = 'python-decouple-typed'
 DESCRIPTION = 'Strict separation of settings from code.'
-URL = 'https://github.com/kaas-mulvad/python-decouple-typed'
+URL = 'https://github.com/shmulvad/python-decouple-typed'
 EMAIL = 'shmulvad@gmail.com'
 AUTHOR = 'Søren Mulvad'
 REQUIRES_PYTHON = '>=3.8.0'
